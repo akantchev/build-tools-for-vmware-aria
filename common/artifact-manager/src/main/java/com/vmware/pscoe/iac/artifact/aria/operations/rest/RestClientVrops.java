@@ -860,6 +860,7 @@ public class RestClientVrops extends RestClient {
 		// resolve the policy id from the name
 		String policyName = customGroup.getPolicy();
 		PolicyDTO.Policy policy = null;
+
 		if (!StringUtils.isBlank(policyName)) {
 			policy = this.findPolicyByName(policyName);
 			customGroup.setPolicy(policy.getId());
