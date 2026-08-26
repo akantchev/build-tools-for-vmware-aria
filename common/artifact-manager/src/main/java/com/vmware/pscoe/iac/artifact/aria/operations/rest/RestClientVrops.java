@@ -858,8 +858,13 @@ public class RestClientVrops extends RestClient {
 		CustomGroupDTO.Group customGroup = serializeCustomGroup(customGroupPayload);
 
 		// resolve the policy id from the name
-		PolicyDTO.Policy policy = this.findPolicyByName(customGroup.getPolicy());
-		customGroup.setPolicy(policy.getId());
+		String policyName = customGroup.getPolicy();
+		PolicyDTO.Policy policy = null;
+
+		if (!StringUtils.isBlank(policyName)) {
+			policy = this.findPolicyByName(policyName);
+			customGroup.setPolicy(policy.getId());
+		}
 
 		// vROPs requires the group type to exists prior to creating
 		createMissingGroupTypes(customGroup);
@@ -914,7 +919,9 @@ public class RestClientVrops extends RestClient {
 		// Update policy for the custom group (if any)
 		// Note: due to bug in the API of vROPs the updating for the policy of
 		// a custom group should be done via separate call to the vROPs public API
-		updateCustomGroupPolicy(customGroupPayload, policy);
+		if (policy != null) {
+			updateCustomGroupPolicy(customGroupPayload, policy);
+		}
 	}
 
 	/**
@@ -2262,9 +2269,9 @@ public class RestClientVrops extends RestClient {
 		if (!(definition instanceof AlertDefinitionDTO.AlertDefinition)) {
 			return;
 		}
-		//remove alert id
+		// remove alert id
 		((AlertDefinitionDTO.AlertDefinition) definition).setId(null);
-		//remove alert condition ids 
+		// remove alert condition ids
 		for (State state : ((AlertDefinitionDTO.AlertDefinition) definition).getStates()) {
 			if (state.getBaseSymptomSet() == null) {
 				continue;
